@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'register_screen.dart';
+import 'home_screen.dart'; // tbadlou b HomeScreen li t7eb
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -11,7 +12,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
   bool _isLoading = false;
 
   void loginUser() async {
@@ -21,9 +21,15 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (user != null) {
-        // Navigate to Home Screen (to be implemented)
-        print("Login successful: ${user.user!.email}");
+
+      if (user.user != null) {
+        print("✅Login successful: ${user.user!.email}");
+        // TODO: Subscribe to FCM topic or handle notifications
+        // Navigate to Home Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen()),
+        );
       }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -41,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
               controller: _emailController,
