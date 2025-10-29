@@ -1,1 +1,25 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"sports-event-app-2025","appId":"1:951485937829:android:f58b2e97b3275df6e1f54c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"sports-event-app-2025","configurations":{"android":"1:951485937829:android:f58b2e97b3275df6e1f54c","ios":"1:951485937829:ios:b140cb4e54c37136e1f54c","macos":"1:951485937829:ios:b140cb4e54c37136e1f54c","web":"1:951485937829:web:ca2c9f0fb68afafae1f54c","windows":"1:951485937829:web:fc60d538a6af956be1f54c"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "sports-event-app-2025",
+          "appId": "1:951485937829:android:f58b2e97b3275df6e1f54c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "sports-event-app-2025",
+          "configurations": {
+            "android": "1:951485937829:android:f58b2e97b3275df6e1f54c",
+            "ios": "1:951485937829:ios:b140cb4e54c37136e1f54c",
+            "macos": "1:951485937829:ios:b140cb4e54c37136e1f54c",
+            "web": "1:951485937829:web:ca2c9f0fb68afafae1f54c",
+            "windows": "1:951485937829:web:fc60d538a6af956be1f54c"
+          }
+        }
+      }
+    }
+  }
+}
