@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'sports-event-app-2025.firebasestorage.app',
     iosBundleId: 'com.example.sportsEventApp',
   );
+
 }

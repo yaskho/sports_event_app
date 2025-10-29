@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "951485937829",
-    "project_id": "sports-event-app-2025",
-    "storage_bucket": "sports-event-app-2025.firebasestorage.app"
+    "project_number": "347926203819",
+    "project_id": "sports-event-app-589dc",
+    "storage_bucket": "sports-event-app-589dc.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:951485937829:android:f58b2e97b3275df6e1f54c",
+        "mobilesdk_app_id": "1:347926203819:android:8b57bbee483d334efcd6ee",
         "android_client_info": {
           "package_name": "com.example.sports_event_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAk4kH4ZZq_tfnfKDtPgWxoPgpWe5UABkI"
+          "current_key": "AIzaSyCGxf66Gif2fJaH0CMJcmnelCCROJvA9jo"
         }
       ],
       "services": {
