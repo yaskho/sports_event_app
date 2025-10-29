@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "flutter": {
     "platforms": {
@@ -23,3 +24,6 @@
     }
   }
 }
+=======
+{"firestore":{"database":"(default)","location":"eur3","rules":"firestore.rules","indexes":"firestore.indexes.json"},"functions":[{"source":"functions","codebase":"default","ignore":["node_modules",".git","firebase-debug.log","firebase-debug.*.log","*.local"],"predeploy":["npm --prefix \"$RESOURCE_DIR\" run lint"]}],"storage":{"rules":"storage.rules"},"flutter":{"platforms":{"android":{"default":{"projectId":"sports-event-app-2025","appId":"1:951485937829:android:f58b2e97b3275df6e1f54c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"sports-event-app-2025","configurations":{"android":"1:951485937829:android:f58b2e97b3275df6e1f54c","ios":"1:951485937829:ios:b140cb4e54c37136e1f54c","web":"1:951485937829:web:ca2c9f0fb68afafae1f54c"}}}}}}
+>>>>>>> d2f32196e0c188ffd60e4aa6ca184e4050f4c737

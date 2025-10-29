@@ -1,3 +1,5 @@
+
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -45,3 +47,5 @@ android {
 flutter {
     source = "../.."
 }
+
+

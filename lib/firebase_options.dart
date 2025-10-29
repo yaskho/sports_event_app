@@ -25,9 +25,21 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
+<<<<<<< HEAD
         return macos;
       case TargetPlatform.windows:
         return windows;
+=======
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+      case TargetPlatform.windows:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+>>>>>>> d2f32196e0c188ffd60e4aa6ca184e4050f4c737
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -66,6 +78,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'sports-event-app-2025.firebasestorage.app',
     iosBundleId: 'com.example.sportsEventApp',
   );
+<<<<<<< HEAD
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBiSSpuhcVoojZZPnGImZaYrfHrAgjGKiw',
@@ -87,3 +100,6 @@ class DefaultFirebaseOptions {
   );
 
 }
+=======
+}
+>>>>>>> d2f32196e0c188ffd60e4aa6ca184e4050f4c737
