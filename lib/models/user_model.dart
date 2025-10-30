@@ -1,26 +1,39 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
-  String uid;
-  String name;
-  String email;
-  List<String> preferredSports;
-  List<String> joinedEvents;
+  final String userId;
+  final String name;
+  final String email;
+  final List<String> preferredSports;
+  final DateTime createdAt;
 
-  UserModel({required this.uid, required this.name, required this.email,
-    required this.preferredSports, required this.joinedEvents});
+  UserModel({
+    required this.userId,
+    required this.name,
+    required this.email,
+    required this.preferredSports,
+    required this.createdAt,
+  });
 
-  Map<String, dynamic> toMap() => {
-    'uid': uid,
-    'name': name,
-    'email': email,
-    'preferredSports': preferredSports,
-    'joinedEvents': joinedEvents,
-  };
+  // Convert Firestore document → UserModel
+  factory UserModel.fromMap(Map<String, dynamic> data, String documentId) {
+    return UserModel(
+      userId: documentId,
+      name: data['name'] ?? '',
+      email: data['email'] ?? '',
+      preferredSports:
+          List<String>.from(data['preferredSports'] ?? []),
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
+    );
+  }
 
-  factory UserModel.fromMap(Map<String, dynamic> map) => UserModel(
-    uid: map['uid'],
-    name: map['name'],
-    email: map['email'],
-    preferredSports: List<String>.from(map['preferredSports']),
-    joinedEvents: List<String>.from(map['joinedEvents']),
-  );
+  // Convert UserModel → Firestore document
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'email': email,
+      'preferredSports': preferredSports,
+      'createdAt': createdAt,
+    };
+  }
 }

@@ -30,10 +30,7 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -47,29 +44,39 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCnRLOZuTyGZK6Gz6nF5K9l7fKldJPYffw',
-    appId: '1:951485937829:web:ca2c9f0fb68afafae1f54c',
-    messagingSenderId: '951485937829',
-    projectId: 'sports-event-app-2025',
-    authDomain: 'sports-event-app-2025.firebaseapp.com',
-    storageBucket: 'sports-event-app-2025.firebasestorage.app',
-    measurementId: 'G-Z2XC2C86VR',
+    apiKey: 'AIzaSyBWa2s-_0gJyoHNvQyFiHg_Tvn5xWJqtjo',
+    appId: '1:347926203819:web:8c2e1262fc351328fcd6ee',
+    messagingSenderId: '347926203819',
+    projectId: 'sports-event-app-589dc',
+    authDomain: 'sports-event-app-589dc.firebaseapp.com',
+    storageBucket: 'sports-event-app-589dc.firebasestorage.app',
+    measurementId: 'G-QHQC126LM6',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAk4kH4ZZq_tfnfKDtPgWxoPgpWe5UABkI',
-    appId: '1:951485937829:android:f58b2e97b3275df6e1f54c',
-    messagingSenderId: '951485937829',
-    projectId: 'sports-event-app-2025',
-    storageBucket: 'sports-event-app-2025.firebasestorage.app',
+    apiKey: 'AIzaSyCGxf66Gif2fJaH0CMJcmnelCCROJvA9jo',
+    appId: '1:347926203819:android:8b57bbee483d334efcd6ee',
+    messagingSenderId: '347926203819',
+    projectId: 'sports-event-app-589dc',
+    storageBucket: 'sports-event-app-589dc.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBiSSpuhcVoojZZPnGImZaYrfHrAgjGKiw',
-    appId: '1:951485937829:ios:b140cb4e54c37136e1f54c',
-    messagingSenderId: '951485937829',
-    projectId: 'sports-event-app-2025',
-    storageBucket: 'sports-event-app-2025.firebasestorage.app',
+    apiKey: 'AIzaSyDImM0Dp3p5ycasYK2C-XXoewcfrAcaVQo',
+    appId: '1:347926203819:ios:4cd90766e2cfa00cfcd6ee',
+    messagingSenderId: '347926203819',
+    projectId: 'sports-event-app-589dc',
+    storageBucket: 'sports-event-app-589dc.firebasestorage.app',
     iosBundleId: 'com.example.sportsEventApp',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBWa2s-_0gJyoHNvQyFiHg_Tvn5xWJqtjo',
+    appId: '1:347926203819:web:90543eda944f3eedfcd6ee',
+    messagingSenderId: '347926203819',
+    projectId: 'sports-event-app-589dc',
+    authDomain: 'sports-event-app-589dc.firebaseapp.com',
+    storageBucket: 'sports-event-app-589dc.firebasestorage.app',
+    measurementId: 'G-9ZKMH1C8DX',
   );
 }
