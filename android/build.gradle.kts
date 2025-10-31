@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.2'
-        classpath 'com.google.gms:google-services:4.4.2' // ✅ add this line here only
+        classpath 'com.google.gms:google-services:4.4.2'
     }
 }
 
