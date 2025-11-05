@@ -37,14 +37,59 @@ class EventService {
         .snapshots();
   }
 
-  // 🔹 Join event
-  Future<void> joinEvent(String eventId, String userId) async {
+  // 🔹 Join event (atomic check + join using a transaction)
+  // Returns: "joined_success", "event_full", "already_joined", "event_not_found", "error"
+  Future<String> joinEvent(String eventId, String userId) async {
+    final docRef = eventsRef.doc(eventId);
+
     try {
+      final result = await _firestore.runTransaction<String>((transaction) async {
+        final snapshot = await transaction.get(docRef);
+
+        if (!snapshot.exists) {
+          return "event_not_found";
+        }
+
+        final data = snapshot.data() as Map<String, dynamic>;
+        final List<dynamic> rawParticipants = data['participants'] ?? [];
+        final participants = rawParticipants.cast<String>().toList();
+        final maxPlayers = (data['maxPlayers'] is int)
+            ? data['maxPlayers'] as int
+            : int.tryParse(data['maxPlayers']?.toString() ?? '0') ?? 0;
+
+        // Already joined
+        if (participants.contains(userId)) {
+          return "already_joined";
+        }
+
+        // Full?
+        if (participants.length >= maxPlayers) {
+          return "event_full";
+        }
+
+        // Add user atomically: compute new list and write it
+        final updatedParticipants = List<String>.from(participants)..add(userId);
+        transaction.update(docRef, {'participants': updatedParticipants});
+
+        return "joined_success";
+      });
+
+      return result;
+    } catch (e) {
+      // You may want to log e in production
+      return "error";
+    }
+  }
+
+  // 🔹 Quit event
+  Future<void> quitEvent(String eventId, String userId) async {
+    try {
+      // Using arrayRemove is fine here (not strictly transactional)
       await eventsRef.doc(eventId).update({
-        'participants': FieldValue.arrayUnion([userId]),
+        'participants': FieldValue.arrayRemove([userId]),
       });
     } catch (e) {
-      throw Exception("Failed to join event: $e");
+      throw Exception("Failed to quit event: $e");
     }
   }
 

@@ -8,6 +8,8 @@ class ViewEventsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -32,23 +34,46 @@ class ViewEventsScreen extends StatelessWidget {
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator(color: Colors.white));
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              );
             }
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return const Center(
-                child: Text("No events found",
-                    style: TextStyle(color: Colors.white70, fontSize: 16)),
+                child: Text(
+                  "No events found",
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
               );
             }
 
-            final events = snapshot.data!.docs;
+            final myId = currentUser?.uid;
+            final allEvents = snapshot.data!.docs;
+
+            final joinedEvents = allEvents
+                .where((event) =>
+                    List<String>.from(event['participants'] ?? [])
+                        .contains(myId))
+                .toList();
+
+            final otherEvents = allEvents
+                .where((event) =>
+                    !List<String>.from(event['participants'] ?? [])
+                        .contains(myId))
+                .toList();
+
+            final sortedEvents = [...joinedEvents, ...otherEvents];
 
             return ListView.builder(
               padding: const EdgeInsets.only(top: 90, bottom: 24),
-              itemCount: events.length,
+              itemCount: sortedEvents.length,
               itemBuilder: (context, index) {
-                final event = events[index];
+                final event = sortedEvents[index];
                 final date = (event['dateTime'] as Timestamp).toDate();
+                final hasJoined = myId != null &&
+                    List<String>.from(event['participants'] ?? [])
+                        .contains(myId);
+
                 return Container(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -65,8 +90,13 @@ class ViewEventsScreen extends StatelessWidget {
                     ],
                   ),
                   child: ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    leading: hasJoined
+                        ? const Icon(Icons.check_circle,
+                            color: Colors.greenAccent, size: 26)
+                        : const Icon(Icons.sports_soccer,
+                            color: Colors.white70, size: 26),
                     title: Text(
                       event['eventName'],
                       style: const TextStyle(
@@ -79,7 +109,8 @@ class ViewEventsScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         "${event['sport']} • ${DateFormat.yMMMd().add_jm().format(date)}\n📍 ${event['location']}",
-                        style: const TextStyle(color: Colors.white70, fontSize: 14),
+                        style:
+                            const TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios_rounded,
@@ -121,7 +152,8 @@ class EventDetailScreen extends StatelessWidget {
         elevation: 0,
         title: const Text(
           "Event Details",
-          style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -198,12 +230,45 @@ class EventDetailScreen extends StatelessWidget {
                           "$missingPlayers"),
                       const SizedBox(height: 40),
                       Center(
-                        child: isOrganizer
-                            ? ElevatedButton.icon(
+                        child: Column(
+                          children: [
+                            if (isOrganizer) ...[
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orangeAccent,
+                                  minimumSize: const Size(double.infinity, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.person_add,
+                                    color: Colors.white),
+                                label: const Text("Add Player",
+                                    style: TextStyle(color: Colors.white)),
+                                onPressed: () =>
+                                    _addManualPlayer(context, eventId, maxPlayers),
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueGrey,
+                                  minimumSize: const Size(double.infinity, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.person_remove,
+                                    color: Colors.white),
+                                label: const Text("Remove Player",
+                                    style: TextStyle(color: Colors.white)),
+                                onPressed: () =>
+                                    _removeManualPlayer(context, eventId),
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.redAccent,
-                                  minimumSize:
-                                      const Size(double.infinity, 50),
+                                  minimumSize: const Size(double.infinity, 50),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -213,8 +278,9 @@ class EventDetailScreen extends StatelessWidget {
                                 label: const Text("Delete Event",
                                     style: TextStyle(color: Colors.white)),
                                 onPressed: () => _deleteEvent(context, eventId),
-                              )
-                            : ElevatedButton(
+                              ),
+                            ] else
+                              ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: hasJoined
                                       ? Colors.redAccent
@@ -222,8 +288,7 @@ class EventDetailScreen extends StatelessWidget {
                                   foregroundColor: hasJoined
                                       ? Colors.white
                                       : const Color(0xFF2A5298),
-                                  minimumSize:
-                                      const Size(double.infinity, 50),
+                                  minimumSize: const Size(double.infinity, 50),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -243,6 +308,8 @@ class EventDetailScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -277,6 +344,19 @@ class EventDetailScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    final eventDoc =
+        await FirebaseFirestore.instance.collection('events').doc(eventId).get();
+    final data = eventDoc.data() as Map<String, dynamic>;
+    final participants = List<String>.from(data['participants'] ?? []);
+    final maxPlayers = data['maxPlayers'] ?? 0;
+
+    if (participants.length >= maxPlayers) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ This event is already full!")),
+      );
+      return;
+    }
+
     await FirebaseFirestore.instance
         .collection('events')
         .doc(eventId)
@@ -309,7 +389,9 @@ class EventDetailScreen extends StatelessWidget {
         content: const Text(
             "Are you sure you want to delete this event? This cannot be undone."),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text("Cancel")),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text("Delete", style: TextStyle(color: Colors.red)),
@@ -324,6 +406,109 @@ class EventDetailScreen extends StatelessWidget {
         const SnackBar(content: Text("Event deleted successfully 🗑️")),
       );
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> _addManualPlayer(
+      BuildContext context, String eventId, int maxPlayers) async {
+    final eventRef = FirebaseFirestore.instance.collection('events').doc(eventId);
+    final doc = await eventRef.get();
+    final data = doc.data() as Map<String, dynamic>;
+    final participants = List<String>.from(data['participants'] ?? []);
+
+    if (participants.length >= maxPlayers) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ Cannot add player — event is full")),
+      );
+      return;
+    }
+
+    final TextEditingController nameController = TextEditingController();
+
+    final shouldAdd = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Add Player"),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: "Player name",
+            hintText: "Enter player name",
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text("Cancel")),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text("Add")),
+        ],
+      ),
+    );
+
+    if (shouldAdd == true && nameController.text.trim().isNotEmpty) {
+      await eventRef.update({
+        'participants': FieldValue.arrayUnion([nameController.text.trim()]),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Player '${nameController.text}' added ✅")),
+      );
+    }
+  }
+
+  /// ✅ FIXED OVERFLOW ISSUE HERE
+  Future<void> _removeManualPlayer(BuildContext context, String eventId) async {
+    final eventRef = FirebaseFirestore.instance.collection('events').doc(eventId);
+    final doc = await eventRef.get();
+    final data = doc.data() as Map<String, dynamic>;
+    final participants = List<String>.from(data['participants'] ?? []);
+
+    if (participants.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No players to remove")),
+      );
+      return;
+    }
+
+    String? selected;
+
+    final shouldRemove = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Remove Player"),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: DropdownButtonFormField<String>(
+            isExpanded: true,
+            value: selected,
+            items: participants
+                .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                .toList(),
+            onChanged: (val) => selected = val,
+            decoration: const InputDecoration(labelText: "Select player"),
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text("Cancel")),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text("Remove")),
+        ],
+      ),
+    );
+
+    if (shouldRemove == true && selected != null) {
+      await eventRef.update({
+        'participants': FieldValue.arrayRemove([selected]),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Player '$selected' removed ✅")),
+      );
     }
   }
 }
