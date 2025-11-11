@@ -39,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // ✅ Background gradient
+          
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -50,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
 
-          // ✅ Semi-transparent glass card
+          
           Center(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -89,7 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 30),
 
-                  // ✅ Input fields
+                  
                   _buildTextField(_nameController, "Full Name", Icons.person),
                   const SizedBox(height: 16),
                   _buildTextField(_emailController, "Email", Icons.email),
@@ -99,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 28),
 
-                  // ✅ Register button
+                  
                   _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : ElevatedButton(
@@ -123,7 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 20),
 
-                  // ✅ Already have an account
+                  
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text(

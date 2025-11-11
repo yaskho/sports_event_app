@@ -393,7 +393,7 @@ class EventDetailScreen extends StatelessWidget {
     if (shouldDelete == true) {
       await eventsRef.doc(eventId).delete();
 
-      // ✅ Fix: show confirmation and navigate back safely
+      
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Event deleted successfully 🗑️")),

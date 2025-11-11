@@ -19,7 +19,7 @@ class NotificationService {
     _listenToAuthAndEvents();
   }
 
-  /// Initialize local notifications plugin
+  
   void _initLocalNotifications() {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -30,12 +30,12 @@ class NotificationService {
     _localNotifications.initialize(settings);
   }
 
-  /// Request notification permission
+  
   Future<void> _requestPermission() async {
     await _messaging.requestPermission();
   }
 
-  /// Show a local notification
+  
   Future<void> _showNotification(String title, String body) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails('event_channel', 'Event Notifications',
@@ -55,27 +55,27 @@ class NotificationService {
     );
   }
 
-  /// Listen for auth changes and manage Firestore listeners
+  
   void _listenToAuthAndEvents() {
     _authSubscription =
         FirebaseAuth.instance.authStateChanges().listen((User? user) async {
       _eventsSubscription?.cancel();
 
       if (user == null) {
-        return; // Prevents unwanted notifications while logged out
+        return; 
       }
 
       _listenToEvents(user);
 
-      // Check full events for creators (old feature)
+      
       await _notifyCreatorOfAlreadyFullEvents(user);
 
-      // ✅ NEW: Check if user had joined events that got deleted while they were logged out
+      
       await _checkDeletedJoinedEvents(user);
     });
   }
 
-  /// Keep old functionality: notify creator if event is already full
+  
   Future<void> _notifyCreatorOfAlreadyFullEvents(User user) async {
     final snapshot = await _firestore
         .collection('events')
@@ -99,21 +99,21 @@ class NotificationService {
     }
   }
 
-  /// ✅ NEW FUNCTION — checks if joined events were deleted while user was logged out
+  
   Future<void> _checkDeletedJoinedEvents(User user) async {
-    // Fetch all event IDs that this user was part of (from a secondary record)
-    // If your app doesn’t store a user’s joined event history, we can infer it:
-    // Step 1: Fetch all existing event IDs from Firestore
+    
+    
+    
     final existingSnapshot = await _firestore.collection('events').get();
     final existingEventIds = existingSnapshot.docs.map((d) => d.id).toSet();
 
-    // Step 2: Get all events the user previously joined that still exist
+    
     final joinedSnapshot = await _firestore
         .collection('events')
         .where('participants', arrayContains: user.uid)
         .get();
 
-    // Step 3: Compare joined event IDs with existing ones
+    
     for (var joinedDoc in joinedSnapshot.docs) {
       if (!existingEventIds.contains(joinedDoc.id)) {
         final eventName = joinedDoc['eventName'] ?? 'Unknown Event';
@@ -125,7 +125,7 @@ class NotificationService {
     }
   }
 
-  /// Firestore listener for live updates
+  
   void _listenToEvents(User user) {
     _eventsSubscription = _firestore.collection('events').snapshots().listen(
       (snapshot) {
@@ -145,7 +145,7 @@ class NotificationService {
               break;
 
             case DocumentChangeType.modified:
-              // Case 1: Normal user joined and event becomes full
+              
               if (participants.contains(user.uid) && missingPlayers == 0) {
                 _showNotification(
                   "Event Full",
@@ -153,7 +153,7 @@ class NotificationService {
                 );
               }
 
-              // Case 2: Organizer gets notified when event becomes full
+              
               if (organizerId == user.uid && missingPlayers == 0) {
                 _showNotification(
                   "Your Event Is Full!",
@@ -163,7 +163,7 @@ class NotificationService {
               break;
 
             case DocumentChangeType.removed:
-              // Case 3: Participant gets notified instantly when event deleted
+              
               if (participants.contains(user.uid)) {
                 _showNotification(
                   "Event Deleted",
@@ -177,7 +177,7 @@ class NotificationService {
     );
   }
 
-  /// Dispose listener when app closes
+  
   void dispose() {
     _eventsSubscription?.cancel();
     _authSubscription?.cancel();

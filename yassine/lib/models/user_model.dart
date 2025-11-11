@@ -13,7 +13,7 @@ class UserModel {
     required this.createdAt,
   });
 
-  // Convert Firestore document → UserModel
+  
   factory UserModel.fromMap(Map<String, dynamic> data, String documentId) {
     return UserModel(
       userId: documentId,
@@ -23,7 +23,7 @@ class UserModel {
     );
   }
 
-  // Convert UserModel → Firestore document
+  
   Map<String, dynamic> toMap() {
     return {
       'name': name,

@@ -106,7 +106,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 30),
 
-              // Name
+              
               TextFormField(
                 controller: _nameController,
                 style: const TextStyle(color: Colors.white),
@@ -116,7 +116,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Email
+              
               TextFormField(
                 controller: _emailController,
                 style: const TextStyle(color: Colors.white),
@@ -127,7 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 30),
 
-              // Save button
+              
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -152,7 +152,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 15),
 
-              // Logout button
+              
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(

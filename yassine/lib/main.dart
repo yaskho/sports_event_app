@@ -13,12 +13,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Start notification service
+  
   NotificationService notificationService = NotificationService();
   runApp(MyApp());
 
-  // Optionally dispose it on app close
-  // notificationService.dispose(); 
+  
+  
 }
 
 class MyApp extends StatelessWidget {

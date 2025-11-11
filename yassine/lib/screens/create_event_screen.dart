@@ -145,7 +145,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Sport Dropdown
+            
             DropdownButtonFormField<String>(
               value: _selectedSport,
               dropdownColor: const Color(0xFF1E1E1E),
@@ -197,7 +197,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Date and Time Pickers
+            
             ListTile(
               tileColor: const Color(0xFF1E1E1E),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

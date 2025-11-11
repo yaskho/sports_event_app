@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFF2196F3); // elegant blue accent
+    final accent = const Color(0xFF2196F3); 
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F1115),
@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // Buttons container with elegant spacing
+            
             _buildActionButton(
               context,
               title: "Create Event",
@@ -82,7 +82,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const Spacer(),
 
-            // Footer
+            
             Text(
               "© 2025 YourApp",
               style: TextStyle(

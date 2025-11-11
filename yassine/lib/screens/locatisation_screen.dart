@@ -10,7 +10,7 @@ class LocationPickerScreen extends StatefulWidget {
 
 class _LocationPickerScreenState extends State<LocationPickerScreen> {
   GoogleMapController? _controller;
-  LatLng? _pickedLocation = const LatLng(36.8663, 10.1647); // Ariana by default;
+  LatLng? _pickedLocation = const LatLng(36.8663, 10.1647); 
   String? _pickedAddress;
   bool _isLoading = false;
 
