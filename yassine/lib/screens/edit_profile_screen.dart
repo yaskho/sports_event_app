@@ -15,13 +15,44 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.user.displayName ?? "";
-    _emailController.text = widget.user.email ?? "";
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+  
+  void _showReauthRequiredDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Security Check Required"),
+        content: const Text(
+          "To update your password, you must log out and then log back in using your current credentials. This ensures your account security.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _logout(context);
+            },
+            child: const Text("Log Out Now"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _saveChanges() async {
@@ -30,12 +61,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    final newName = _nameController.text.trim();
+    final newPassword = _passwordController.text.trim();
+    bool passwordUpdated = false;
+    bool nameUpdated = false;
+
     try {
+      if (newPassword.isNotEmpty) {
+        await user.updatePassword(newPassword);
+        passwordUpdated = true;
+        _passwordController.clear();
+      }
+
+      if (newName != user.displayName) {
+        await user.updateDisplayName(newName);
+        nameUpdated = true;
+      }
+
+      if (!passwordUpdated && !nameUpdated) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("⚠️ No changes detected to save.")),
+        );
+        return;
+      }
+
       final updatedUser = UserModel(
         userId: user.uid,
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        createdAt: DateTime.now(),
+        name: newName,
+        email: user.email!,
+        createdAt: DateTime.now(), 
       );
 
       await FirebaseFirestore.instance
@@ -46,6 +100,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("✅ Profile updated successfully")),
       );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        _showReauthRequiredDialog();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Auth error: ${e.message}")),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error saving changes: $e")),
@@ -105,29 +167,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Icon(Icons.person, color: Colors.white, size: 50),
               ),
               const SizedBox(height: 30),
-
-              
               TextFormField(
                 controller: _nameController,
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration("Full Name", Icons.person),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? "Enter your name" : null,
+                validator: (v) => v == null || v.trim().isEmpty ? "Enter your name" : null,
               ),
               const SizedBox(height: 20),
-
-              
               TextFormField(
-                controller: _emailController,
+                controller: _passwordController,
+                obscureText: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: _inputDecoration("Email", Icons.email),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? "Enter your email" : null,
+                decoration: _inputDecoration("New Password (Leave blank to keep old)", Icons.lock),
+                validator: (v) {
+                  if (v != null && v.isNotEmpty && v.length < 6) {
+                    return "Password must be at least 6 characters long.";
+                  }
+                  return null;
+                },
               ),
-
               const SizedBox(height: 30),
-
-              
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -135,10 +194,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   icon: const Icon(Icons.save, color: Colors.white),
                   label: const Text(
                     "Save Changes",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
@@ -149,10 +205,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 15),
-
-              
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -160,10 +213,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   icon: const Icon(Icons.logout, color: Colors.redAccent),
                   label: const Text(
                     "Logout",
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
                   ),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.redAccent),

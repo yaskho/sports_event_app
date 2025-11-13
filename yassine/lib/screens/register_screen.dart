@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  
   _RegisterScreenState createState() => _RegisterScreenState();
 }
 
@@ -25,7 +25,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void registerUser() async {
-    
     if (_emailController.text.trim().isEmpty ||
         _passwordController.text.trim().isEmpty ||
         _nameController.text.trim().isEmpty) {
@@ -37,14 +36,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final user = await _auth.createUserWithEmailAndPassword(
+      final authResult = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      
-      if (user.user != null) {
-        await user.user!.updateDisplayName(_nameController.text.trim());
+      final user = authResult.user;
+
+      if (user != null) {
+        await user.updateDisplayName(_nameController.text.trim());
+        
+        // FIX: Write user profile data to Firestore so other screens can look up the name using the UID
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': _nameController.text.trim(),
+          'email': user.email,
+          'createdAt': Timestamp.now(),
+        });
+        
         if (mounted) {
           Navigator.pop(context);
         }
@@ -65,10 +73,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Stack(
         children: [
-          
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -78,15 +84,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-
-          
-          
           LayoutBuilder(
             builder: (context, viewportConstraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  
-                  
                   constraints: BoxConstraints(
                     minHeight: viewportConstraints.maxHeight,
                   ),
@@ -127,18 +128,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             style: TextStyle(color: Colors.white70, fontSize: 15),
                           ),
                           const SizedBox(height: 30),
-
-                          
                           _buildTextField(_nameController, "Full Name", Icons.person),
                           const SizedBox(height: 16),
                           _buildTextField(_emailController, "Email", Icons.email),
                           const SizedBox(height: 16),
                           _buildTextField(_passwordController, "Password", Icons.lock,
                               obscure: true),
-
                           const SizedBox(height: 28),
-
-                          
                           _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
                               : ElevatedButton(
@@ -159,10 +155,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                   ),
                                 ),
-
                           const SizedBox(height: 20),
-
-                          
                           TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: const Text(
