@@ -15,7 +15,8 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _currentPasswordController = TextEditingController(); 
+  final _newPasswordController = TextEditingController();
 
   @override
   void initState() {
@@ -26,33 +27,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _passwordController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
     super.dispose();
   }
-  
-  void _showReauthRequiredDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Security Check Required"),
-        content: const Text(
-          "To update your password, you must log out and then log back in using your current credentials. This ensures your account security.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _logout(context);
-            },
-            child: const Text("Log Out Now"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-        ],
-      ),
-    );
+
+  Future<bool> _reauthenticateUser(String currentPassword) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<void> _saveChanges() async {
@@ -62,55 +54,72 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (user == null) return;
 
     final newName = _nameController.text.trim();
-    final newPassword = _passwordController.text.trim();
-    bool passwordUpdated = false;
+    final currentPassword = _currentPasswordController.text.trim();
+    final newPassword = _newPasswordController.text.trim();
+
     bool nameUpdated = false;
+    bool passwordUpdated = false;
 
     try {
+      
       if (newPassword.isNotEmpty) {
+        if (currentPassword.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("⚠️ Enter your CURRENT password to change it."),
+            ),
+          );
+          return;
+        }
+
+        final ok = await _reauthenticateUser(currentPassword);
+        if (!ok) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("❌ Current password is incorrect."),
+            ),
+          );
+          return;
+        }
+
         await user.updatePassword(newPassword);
         passwordUpdated = true;
-        _passwordController.clear();
+        _currentPasswordController.clear();
+        _newPasswordController.clear();
       }
 
+      
       if (newName != user.displayName) {
         await user.updateDisplayName(newName);
         nameUpdated = true;
       }
 
-      if (!passwordUpdated && !nameUpdated) {
+      if (!nameUpdated && !passwordUpdated) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("⚠️ No changes detected to save.")),
+          const SnackBar(content: Text("⚠️ No changes detected.")),
         );
         return;
       }
 
+      
       final updatedUser = UserModel(
         userId: user.uid,
         name: newName,
         email: user.email!,
-        createdAt: DateTime.now(), 
+        createdAt: DateTime.now(),
       );
 
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection("users")
           .doc(user.uid)
           .set(updatedUser.toMap(), SetOptions(merge: true));
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("✅ Profile updated successfully")),
       );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'requires-recent-login') {
-        _showReauthRequiredDialog();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Auth error: ${e.message}")),
-        );
-      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error saving changes: $e")),
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }
@@ -167,26 +176,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Icon(Icons.person, color: Colors.white, size: 50),
               ),
               const SizedBox(height: 30),
+
+              
               TextFormField(
                 controller: _nameController,
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration("Full Name", Icons.person),
-                validator: (v) => v == null || v.trim().isEmpty ? "Enter your name" : null,
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? "Enter your name" : null,
               ),
+
               const SizedBox(height: 20),
+
+              
               TextFormField(
-                controller: _passwordController,
+                controller: _currentPasswordController,
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: _inputDecoration("New Password (Leave blank to keep old)", Icons.lock),
+                decoration:
+                    _inputDecoration("Current Password (required to change password)", Icons.lock),
+              ),
+
+              const SizedBox(height: 20),
+
+              
+              TextFormField(
+                controller: _newPasswordController,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration:
+                    _inputDecoration("New Password (leave empty to keep old)", Icons.lock_outline),
                 validator: (v) {
                   if (v != null && v.isNotEmpty && v.length < 6) {
-                    return "Password must be at least 6 characters long.";
+                    return "Password must be at least 6 characters.";
                   }
                   return null;
                 },
               ),
+
               const SizedBox(height: 30),
+
+              
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -205,7 +235,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 15),
+
+              
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
