@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -15,22 +16,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
   void registerUser() async {
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty ||
+        _nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("All fields are required.")),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
-      final user = await _auth.createUserWithEmailAndPassword(
+      final authResult = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      await user.user!.updateDisplayName(_nameController.text.trim());
-      Navigator.pop(context);
+      final user = authResult.user;
+
+      if (user != null) {
+        await user.updateDisplayName(_nameController.text.trim());
+        
+        // FIX: Write user profile data to Firestore so other screens can look up the name using the UID
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': _nameController.text.trim(),
+          'email': user.email,
+          'createdAt': Timestamp.now(),
+        });
+        
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? "Registration failed")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? "Registration failed")),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -39,7 +75,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // ✅ Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -49,91 +84,92 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-
-          // ✅ Semi-transparent glass card
-          Center(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
+          LayoutBuilder(
+            builder: (context, viewportConstraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: viewportConstraints.maxHeight,
                   ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.person_add_alt_1_rounded,
-                      size: 70, color: Colors.white),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Create Account",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Join us and get started!",
-                    style: TextStyle(color: Colors.white70, fontSize: 15),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // ✅ Input fields
-                  _buildTextField(_nameController, "Full Name", Icons.person),
-                  const SizedBox(height: 16),
-                  _buildTextField(_emailController, "Email", Icons.email),
-                  const SizedBox(height: 16),
-                  _buildTextField(_passwordController, "Password", Icons.lock,
-                      obscure: true),
-
-                  const SizedBox(height: 28),
-
-                  // ✅ Register button
-                  _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : ElevatedButton(
-                          onPressed: registerUser,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF2575FC),
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                  child: Center(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white.withOpacity(0.3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
                           ),
-                          child: const Text(
-                            "Sign Up",
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.person_add_alt_1_rounded,
+                              size: 70, color: Colors.white),
+                          const SizedBox(height: 16),
+                          const Text(
+                            "Create Account",
                             style: TextStyle(
-                              fontSize: 18,
+                              color: Colors.white,
+                              fontSize: 26,
                               fontWeight: FontWeight.bold,
+                              letterSpacing: 0.8,
                             ),
                           ),
-                        ),
-
-                  const SizedBox(height: 20),
-
-                  // ✅ Already have an account
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      "Already have an account? Login",
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Join us and get started!",
+                            style: TextStyle(color: Colors.white70, fontSize: 15),
+                          ),
+                          const SizedBox(height: 30),
+                          _buildTextField(_nameController, "Full Name", Icons.person),
+                          const SizedBox(height: 16),
+                          _buildTextField(_emailController, "Email", Icons.email),
+                          const SizedBox(height: 16),
+                          _buildTextField(_passwordController, "Password", Icons.lock,
+                              obscure: true),
+                          const SizedBox(height: 28),
+                          _isLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : ElevatedButton(
+                                  onPressed: registerUser,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: const Color(0xFF2575FC),
+                                    minimumSize: const Size(double.infinity, 50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Sign Up",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                          const SizedBox(height: 20),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text(
+                              "Already have an account? Login",
+                              style: TextStyle(color: Colors.white70, fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),

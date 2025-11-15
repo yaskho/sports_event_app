@@ -36,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
 
-                  // --- Avatar with blue glow ---
+                  
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
@@ -59,7 +59,7 @@ class ProfileScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // --- Name & email ---
+                  
                   Text(
                     user.displayName ?? "Anonymous User",
                     style: const TextStyle(
@@ -86,7 +86,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
 
-                  // --- Buttons ---
+                  
                   _buildProfileButton(
                     context: context,
                     icon: Icons.edit_outlined,
@@ -119,7 +119,7 @@ class ProfileScreen extends StatelessWidget {
 
                   const Spacer(),
 
-                  // --- Footer ---
+                  
                   Text(
                     "© 2025 YourApp",
                     style: TextStyle(

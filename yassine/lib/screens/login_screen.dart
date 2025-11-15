@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // --- App title ---
+                
                 Text(
                   "Welcome Back 👋",
                   style: TextStyle(
@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // --- Email field ---
+                
                 _buildInputField(
                   controller: _emailController,
                   icon: Icons.email_outlined,
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 18),
 
-                // --- Password field ---
+                
                 _buildInputField(
                   controller: _passwordController,
                   icon: Icons.lock_outline,
@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 32),
 
-                // --- Login button ---
+                
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : GestureDetector(
@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // --- Register link ---
+                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -157,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // --- Footer ---
+                
                 Text(
                   "© 2025 YourApp",
                   style: TextStyle(

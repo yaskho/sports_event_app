@@ -11,14 +11,15 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   StreamSubscription<QuerySnapshot>? _eventsSubscription;
+  StreamSubscription<User?>? _authSubscription;
 
   NotificationService() {
     _initLocalNotifications();
     _requestPermission();
-    _listenToEvents();
+    _listenToAuthAndEvents();
   }
 
-  /// Initialize local notifications plugin
+  
   void _initLocalNotifications() {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -29,16 +30,17 @@ class NotificationService {
     _localNotifications.initialize(settings);
   }
 
-  /// Request notification permission
+  
   Future<void> _requestPermission() async {
     await _messaging.requestPermission();
   }
 
-  /// Show a local notification
+  
   Future<void> _showNotification(String title, String body) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails('event_channel', 'Event Notifications',
-            channelDescription: 'Notifications about events you joined',
+            channelDescription:
+                'Notifications about events you joined or created',
             importance: Importance.max,
             priority: Priority.high);
 
@@ -53,55 +55,131 @@ class NotificationService {
     );
   }
 
-  /// Listen to changes in events where the current user is a participant
-  void _listenToEvents() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+  
+  void _listenToAuthAndEvents() {
+    _authSubscription =
+        FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      _eventsSubscription?.cancel();
 
-    // Listen to all events
-    _eventsSubscription = _firestore
-        .collection('events')
-        .snapshots()
-        .listen((snapshot) {
-      for (var docChange in snapshot.docChanges) {
-        final data = docChange.doc.data();
-        if (data == null) continue;
-
-        final participants = List<String>.from(data['participants'] ?? []);
-        final maxPlayers = data['maxPlayers'] ?? 0;
-        final missingPlayers = (maxPlayers - participants.length).clamp(0, maxPlayers);
-
-        final eventName = data['eventName'] ?? 'Unknown Event';
-
-        switch (docChange.type) {
-          case DocumentChangeType.added:
-            // do nothing for newly created events
-            break;
-
-          case DocumentChangeType.modified:
-            // Event updated
-            if (participants.contains(user.uid) && missingPlayers == 0) {
-              _showNotification(
-                  "Event Full",
-                  "The event '$eventName' you joined is now full.");
-            }
-            break;
-
-          case DocumentChangeType.removed:
-            // Event deleted
-            if (participants.contains(user.uid)) {
-              _showNotification(
-                  "Event Deleted",
-                  "The event '$eventName' you joined has been deleted.");
-            }
-            break;
-        }
+      if (user == null) {
+        return; 
       }
+
+      _listenToEvents(user);
+
+      
+      await _notifyCreatorOfAlreadyFullEvents(user);
+
+      
+      await _checkDeletedJoinedEvents(user);
     });
   }
 
-  /// Dispose the listener when app closes
+  
+  Future<void> _notifyCreatorOfAlreadyFullEvents(User user) async {
+    final snapshot = await _firestore
+        .collection('events')
+        .where('organizerId', isEqualTo: user.uid)
+        .get();
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final participants = List<String>.from(data['participants'] ?? []);
+      final maxPlayers = data['maxPlayers'] ?? 0;
+      final missingPlayers =
+          (maxPlayers - participants.length).clamp(0, maxPlayers);
+
+      if (missingPlayers == 0) {
+        final eventName = data['eventName'] ?? 'Your Event';
+        _showNotification(
+          "Your Event Is Full!",
+          "Your event '$eventName' already has all players.",
+        );
+      }
+    }
+  }
+
+  
+  Future<void> _checkDeletedJoinedEvents(User user) async {
+    
+    
+    
+    final existingSnapshot = await _firestore.collection('events').get();
+    final existingEventIds = existingSnapshot.docs.map((d) => d.id).toSet();
+
+    
+    final joinedSnapshot = await _firestore
+        .collection('events')
+        .where('participants', arrayContains: user.uid)
+        .get();
+
+    
+    for (var joinedDoc in joinedSnapshot.docs) {
+      if (!existingEventIds.contains(joinedDoc.id)) {
+        final eventName = joinedDoc['eventName'] ?? 'Unknown Event';
+        _showNotification(
+          "Event Cancelled",
+          "The event '$eventName' you joined has been cancelled.",
+        );
+      }
+    }
+  }
+
+  
+  void _listenToEvents(User user) {
+    _eventsSubscription = _firestore.collection('events').snapshots().listen(
+      (snapshot) {
+        for (var docChange in snapshot.docChanges) {
+          final data = docChange.doc.data();
+          if (data == null) continue;
+
+          final participants = List<String>.from(data['participants'] ?? []);
+          final maxPlayers = data['maxPlayers'] ?? 0;
+          final missingPlayers =
+              (maxPlayers - participants.length).clamp(0, maxPlayers);
+          final eventName = data['eventName'] ?? 'Unknown Event';
+          final organizerId = data['organizerId'];
+
+          switch (docChange.type) {
+            case DocumentChangeType.added:
+              break;
+
+            case DocumentChangeType.modified:
+              
+              if (participants.contains(user.uid) && missingPlayers == 0) {
+                _showNotification(
+                  "Event Full",
+                  "The event '$eventName' you joined is now full.",
+                );
+              }
+
+              
+              if (organizerId == user.uid && missingPlayers == 0) {
+                _showNotification(
+                  "Your Event Is Full!",
+                  "Your event '$eventName' now has all players.",
+                );
+              }
+              break;
+
+            case DocumentChangeType.removed:
+              
+              if (participants.contains(user.uid)) {
+                _showNotification(
+                  "Event Deleted",
+                  "The event '$eventName' you joined has been deleted.",
+                );
+              }
+              break;
+          }
+        }
+      },
+    );
+  }
+
+  
   void dispose() {
     _eventsSubscription?.cancel();
+    _authSubscription?.cancel();
   }
 }

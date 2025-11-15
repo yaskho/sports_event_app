@@ -9,7 +9,7 @@ class EventModel {
   final int missingPlayers;
   final List<String> participants;
   final String status;
-  final String? eventName; // optional, for display
+  final String? eventName; 
 
   EventModel({
     required this.eventId,
@@ -24,7 +24,7 @@ class EventModel {
     this.eventName,
   });
 
-  // Convert Firestore document → EventModel
+  
   factory EventModel.fromMap(Map<String, dynamic> data, String documentId) {
     return EventModel(
       eventId: documentId,
@@ -41,7 +41,7 @@ class EventModel {
     );
   }
 
-  // Convert EventModel → Firestore document
+  
   Map<String, dynamic> toMap() {
     return {
       'sport': sport,

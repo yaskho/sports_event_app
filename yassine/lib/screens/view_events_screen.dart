@@ -13,7 +13,7 @@ class ViewEventsScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text("All Events"),
+        title: const Text("My Events"),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -56,79 +56,108 @@ class ViewEventsScreen extends StatelessWidget {
                         .contains(myId))
                 .toList();
 
-            final otherEvents = allEvents
+            final notJoinedEvents = allEvents
                 .where((event) =>
-                    !List<String>.from(event['participants'] ?? [])
-                        .contains(myId))
+                    !(List<String>.from(event['participants'] ?? [])
+                        .contains(myId)))
                 .toList();
 
-            final sortedEvents = [...joinedEvents, ...otherEvents];
+            final createdEvents = allEvents
+                .where((event) => event['organizerId'] == myId)
+                .toList();
 
-            return ListView.builder(
+            return ListView(
               padding: const EdgeInsets.only(top: 90, bottom: 24),
-              itemCount: sortedEvents.length,
-              itemBuilder: (context, index) {
-                final event = sortedEvents[index];
-                final date = (event['dateTime'] as Timestamp).toDate();
-                final hasJoined = myId != null &&
-                    List<String>.from(event['participants'] ?? [])
-                        .contains(myId);
-
-                return Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 12,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    leading: hasJoined
-                        ? const Icon(Icons.check_circle,
-                            color: Colors.greenAccent, size: 26)
-                        : const Icon(Icons.sports_soccer,
-                            color: Colors.white70, size: 26),
-                    title: Text(
-                      event['eventName'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        "${event['sport']} • ${DateFormat.yMMMd().add_jm().format(date)}\n📍 ${event['location']}",
-                        style:
-                            const TextStyle(color: Colors.white70, fontSize: 14),
-                      ),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios_rounded,
-                        color: Colors.white70, size: 18),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              EventDetailScreen(eventId: event.id),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+              children: [
+                _buildEventSection(
+                    context, "🟢 Joined Events", joinedEvents, myId),
+                _buildEventSection(
+                    context, "⚪ Not Joined Events", notJoinedEvents, myId),
+                _buildEventSection(
+                    context, "🔵 Created Events", createdEvents, myId),
+              ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventSection(BuildContext context, String title,
+      List<QueryDocumentSnapshot> events, String? myId) {
+    if (events.isEmpty) return const SizedBox();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ExpansionTile(
+          initiallyExpanded: true,
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white70,
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          children: events.map((event) {
+            final date = (event['dateTime'] as Timestamp).toDate();
+            final hasJoined = myId != null &&
+                List<String>.from(event['participants'] ?? []).contains(myId);
+
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.2)),
+              ),
+              child: ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                leading: hasJoined
+                    ? const Icon(Icons.check_circle,
+                        color: Colors.greenAccent, size: 26)
+                    : const Icon(Icons.sports_soccer,
+                        color: Colors.white70, size: 26),
+                title: Text(
+                  event['eventName'],
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  "${event['sport']} • ${DateFormat.yMMMd().add_jm().format(date)}\n📍 ${event['location']}",
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded,
+                    color: Colors.white70, size: 18),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EventDetailScreen(eventId: event.id),
+                    ),
+                  );
+                },
+              ),
+            );
+          }).toList(),
         ),
       ),
     );
@@ -146,15 +175,11 @@ class EventDetailScreen extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
-        title: const Text(
-          "Event Details",
-          style:
-              TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
-        ),
+        title: const Text("Event Details",
+            style: TextStyle(color: Colors.blueAccent)),
         centerTitle: true,
       ),
       body: Container(
@@ -167,156 +192,119 @@ class EventDetailScreen extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SafeArea(
-          child: StreamBuilder<DocumentSnapshot>(
-            stream: eventsRef.doc(eventId).snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                    child: CircularProgressIndicator(color: Colors.white));
-              }
-              if (!snapshot.hasData || !snapshot.data!.exists) {
-                return const Center(
+        child: StreamBuilder<DocumentSnapshot>(
+          stream: eventsRef.doc(eventId).snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                  child: CircularProgressIndicator(color: Colors.white));
+            }
+            if (!snapshot.data!.exists) {
+              return const Center(
                   child: Text("Event not found",
-                      style: TextStyle(color: Colors.white70)),
-                );
-              }
+                      style: TextStyle(color: Colors.white70)));
+            }
 
-              final event = snapshot.data!;
-              final date = (event['dateTime'] as Timestamp).toDate();
-              final participants =
-                  List<String>.from(event['participants'] ?? []);
-              final maxPlayers = event['maxPlayers'] ?? 0;
-              final missingPlayers = (maxPlayers - participants.length);
-              final organizerId = event['organizerId'];
-              final hasJoined = currentUser != null &&
-                  participants.contains(currentUser.uid);
-              final isOrganizer =
-                  currentUser != null && organizerId == currentUser.uid;
+            final event = snapshot.data!;
+            final date = (event['dateTime'] as Timestamp).toDate();
+            final participants = List<String>.from(event['participants'] ?? []);
+            final maxPlayers = event['maxPlayers'] ?? 0;
+            final missingPlayers = maxPlayers - participants.length;
+            final organizerId = event['organizerId'];
+            final hasJoined = currentUser != null &&
+                participants.contains(currentUser.uid);
+            final isOrganizer =
+                currentUser != null && organizerId == currentUser.uid;
 
-              return SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 12,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(event['eventName'],
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 20),
-                      _buildDetailRow(Icons.sports_soccer, "Sport", event['sport']),
-                      _buildDetailRow(Icons.place, "Location", event['location']),
-                      _buildDetailRow(Icons.calendar_month, "Date",
-                          DateFormat.yMMMd().add_jm().format(date)),
-                      _buildDetailRow(Icons.people, "Max Players", "$maxPlayers"),
-                      _buildDetailRow(Icons.person_outline, "Missing Players",
-                          "$missingPlayers"),
-                      const SizedBox(height: 40),
-                      Center(
-                        child: Column(
-                          children: [
-                            if (isOrganizer) ...[
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orangeAccent,
-                                  minimumSize: const Size(double.infinity, 50),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                icon: const Icon(Icons.person_add,
-                                    color: Colors.white),
-                                label: const Text("Add Player",
-                                    style: TextStyle(color: Colors.white)),
-                                onPressed: () =>
-                                    _addManualPlayer(context, eventId, maxPlayers),
-                              ),
-                              const SizedBox(height: 10),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueGrey,
-                                  minimumSize: const Size(double.infinity, 50),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                icon: const Icon(Icons.person_remove,
-                                    color: Colors.white),
-                                label: const Text("Remove Player",
-                                    style: TextStyle(color: Colors.white)),
-                                onPressed: () =>
-                                    _removeManualPlayer(context, eventId),
-                              ),
-                              const SizedBox(height: 10),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.redAccent,
-                                  minimumSize: const Size(double.infinity, 50),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                icon: const Icon(Icons.delete,
-                                    color: Colors.white),
-                                label: const Text("Delete Event",
-                                    style: TextStyle(color: Colors.white)),
-                                onPressed: () => _deleteEvent(context, eventId),
-                              ),
-                            ] else
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: hasJoined
-                                      ? Colors.redAccent
-                                      : Colors.white,
-                                  foregroundColor: hasJoined
-                                      ? Colors.white
-                                      : const Color(0xFF2A5298),
-                                  minimumSize: const Size(double.infinity, 50),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  if (hasJoined) {
-                                    _quitEvent(context, eventId);
-                                  } else {
-                                    _joinEvent(context, eventId);
-                                  }
-                                },
-                                child: Text(
-                                  hasJoined ? "Quit Event" : "Join Event",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
-              );
-            },
-          ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(event['eventName'],
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 20),
+                    _buildDetailRow(Icons.sports_soccer, "Sport", event['sport']),
+                    _buildDetailRow(Icons.place, "Location", event['location']),
+                    _buildDetailRow(Icons.calendar_month, "Date",
+                        DateFormat.yMMMd().add_jm().format(date)),
+                    _buildDetailRow(
+                        Icons.people, "Max Players", "$maxPlayers"),
+                    _buildDetailRow(Icons.person_outline, "Missing Players",
+                        "$missingPlayers"),
+                    const SizedBox(height: 40),
+
+                    if (isOrganizer) ...[
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        icon: const Icon(Icons.person_add),
+                        label: const Text("Add Player"),
+                        onPressed: () =>
+                            _addManualPlayer(context, eventId, maxPlayers),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueGrey,
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        icon: const Icon(Icons.person_remove),
+                        label: const Text("Remove Player"),
+                        onPressed: () => _removeManualPlayer(context, eventId),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        icon: const Icon(Icons.delete),
+                        label: const Text("Delete Event"),
+                        onPressed: () =>
+                            _deleteEvent(context, eventId, eventsRef),
+                      ),
+                    ] else ...[
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              hasJoined ? Colors.redAccent : Colors.white,
+                          foregroundColor: hasJoined
+                              ? Colors.white
+                              : const Color(0xFF2A5298),
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        onPressed: () {
+                          if (hasJoined) {
+                            _quitEvent(context, eventId);
+                          } else {
+                            _joinEvent(context, eventId);
+                          }
+                        },
+                        child: Text(
+                          hasJoined ? "Quit Event" : "Join Event",
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ]
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -381,7 +369,8 @@ class EventDetailScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _deleteEvent(BuildContext context, String eventId) async {
+  Future<void> _deleteEvent(BuildContext context, String eventId,
+      CollectionReference eventsRef) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -401,11 +390,14 @@ class EventDetailScreen extends StatelessWidget {
     );
 
     if (shouldDelete == true) {
-      await FirebaseFirestore.instance.collection('events').doc(eventId).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Event deleted successfully 🗑️")),
-      );
-      Navigator.pop(context);
+      await eventsRef.doc(eventId).delete();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Event deleted successfully 🗑️")),
+        );
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -432,9 +424,7 @@ class EventDetailScreen extends StatelessWidget {
         content: TextField(
           controller: nameController,
           decoration: const InputDecoration(
-            labelText: "Player name",
-            hintText: "Enter player name",
-          ),
+              labelText: "Player name", hintText: "Enter player name"),
         ),
         actions: [
           TextButton(
@@ -458,7 +448,7 @@ class EventDetailScreen extends StatelessWidget {
     }
   }
 
-  /// ✅ FIXED OVERFLOW ISSUE HERE
+  
   Future<void> _removeManualPlayer(BuildContext context, String eventId) async {
     final eventRef = FirebaseFirestore.instance.collection('events').doc(eventId);
     final doc = await eventRef.get();
@@ -472,42 +462,63 @@ class EventDetailScreen extends StatelessWidget {
       return;
     }
 
-    String? selected;
+    
+    final Map<String, String> idToName = {};
+
+    for (final p in participants) {
+      if (p.length > 25) {
+        final userDoc =
+            await FirebaseFirestore.instance.collection('users').doc(p).get();
+        idToName[p] = userDoc.data()?['name'] ?? "Unknown User";
+      } else {
+        idToName[p] = p;
+      }
+    }
+
+    String selected = participants.first;
 
     final shouldRemove = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Remove Player"),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: DropdownButtonFormField<String>(
-            isExpanded: true,
-            value: selected,
-            items: participants
-                .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                .toList(),
-            onChanged: (val) => selected = val,
-            decoration: const InputDecoration(labelText: "Select player"),
-          ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text("Cancel")),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text("Remove")),
-        ],
-      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setStateDialog) {
+            return AlertDialog(
+              title: const Text("Remove Player"),
+              content: DropdownButtonFormField<String>(
+                value: selected,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: "Select Player"),
+                items: participants
+                    .map((uid) => DropdownMenuItem(
+                          value: uid,
+                          child: Text(idToName[uid] ?? uid),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setStateDialog(() => selected = value!);
+                },
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: const Text("Cancel")),
+                TextButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: const Text("Remove")),
+              ],
+            );
+          },
+        );
+      },
     );
 
-    if (shouldRemove == true && selected != null) {
+    if (shouldRemove == true) {
       await eventRef.update({
         'participants': FieldValue.arrayRemove([selected]),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Player '$selected' removed ✅")),
+        SnackBar(content: Text("Player removed successfully")),
       );
     }
   }
