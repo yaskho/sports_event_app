@@ -84,7 +84,7 @@ class HomeScreen extends StatelessWidget {
 
             
             Text(
-              "© 2025 YourApp",
+              "MatchApp",
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.white.withOpacity(0.3),

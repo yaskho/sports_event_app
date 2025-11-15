@@ -121,7 +121,7 @@ class ProfileScreen extends StatelessWidget {
 
                   
                   Text(
-                    "© 2025 YourApp",
+                    "MatchApp",
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.3),
                       fontSize: 12,
