@@ -1,90 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sports Event App</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
-    header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #222; color: white; }
-    header a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
-    .cover { background: url('https://images.unsplash.com/photo-1505842465776-3f5d4f26f65d') center/cover no-repeat; height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
-    .cover h1 { font-size: 4rem; margin: 0; }
-    .cover p { font-size: 1.5rem; margin: 10px 0; }
-    .cover button { padding: 10px 20px; font-size: 1.2rem; cursor: pointer; margin-top: 15px; background-color: #ff5722; border: none; color: white; border-radius: 5px; }
-    section { padding: 60px 20px; max-width: 1000px; margin: auto; }
-    h2 { text-align: center; margin-bottom: 40px; }
-    .features, .about { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; }
-    .feature-card, .about-card { flex: 1 1 30%; background: #f3f3f3; padding: 20px; border-radius: 10px; text-align: center; }
-    .feature-card img, .about-card img { max-width: 100%; border-radius: 10px; }
-    footer { text-align: center; padding: 20px; background: #222; color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Match App | Organize and Join Casual Games</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons for aesthetic appeal -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .text-primary {
+            color: #3b82f6; /* Blue-500 */
+        }
+    </style>
 </head>
-<body>
+<body class="text-gray-800">
 
-  <!-- Header -->
-  <header>
-    <div><strong>Sports Event App</strong></div>
-    <nav>
-      <a href="#features">Features</a>
-      <a href="#about">About</a>
-    </nav>
-  </header>
+    <!-- Header & Navigation -->
+    <header class="fixed top-0 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-sm shadow-md z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
+            <h1 class="text-xl font-bold text-primary">Sports Match App</h1>
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex space-x-6">
+                <a href="#features" class="text-gray-600 hover:text-primary transition duration-300">Features</a>
+                <a href="#about" class="text-gray-600 hover:text-primary transition duration-300">Our Story</a>
+                <a href="https://github.com/YourTeam/SportsMatchApp" target="_blank" class="text-gray-600 hover:text-primary transition duration-300">GitHub</a>
+                <a href="#team" class="text-gray-600 hover:text-primary transition duration-300">Team</a>
+            </nav>
+            <!-- Mobile Menu Placeholder -->
+            <button class="md:hidden p-2 rounded-lg text-gray-600 hover:text-primary">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </header>
 
-  <!-- Intro Section -->
-  <div class="cover">
-    <h1>Sports Event App</h1>
-    <p>Organize & Join Team Sports Easily</p>
-    <button onclick="window.location.href='https://your-deployed-app-link.com'">Open App</button>
-  </div>
+    <main>
+        <!-- 0. Intro Section (Hero) -->
+        <section id="hero" class="pt-32 pb-20 sm:pt-40 sm:pb-32 bg-gradient-to-br from-blue-50 to-blue-200">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
+                <!-- Text Content -->
+                <div class="space-y-6">
+                    <h2 class="text-sm font-semibold uppercase tracking-widest text-primary">Your Game, Found.</h2>
+                    <h1 class="text-5xl sm:text-6xl font-extrabold leading-tight">
+                        Organize and Join Casual Sports Games. Instantly.
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Stop coordinating, start playing. The fastest way to find missing players for your football, padel, or basketball match nearby.
+                    </p>
+                    <a href="#" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-primary hover:bg-blue-600 transition duration-300 transform hover:scale-[1.02]">
+                        <i data-lucide="play-circle" class="w-5 h-5 mr-2"></i>
+                        Get the App (Deployed Project)
+                    </a>
+                </div>
 
-  <!-- Features Section -->
-  <section id="features">
-    <h2>Key Features</h2>
-    <div class="features">
-      <div class="feature-card">
-        <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="Create Event">
-        <h3>Create Events</h3>
-        <p>Easily create football, basketball, or padel events with time, location, and players needed.</p>
-      </div>
-      <div class="feature-card">
-        <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="Join Events">
-        <h3>Join Events</h3>
-        <p>Discover and join nearby sports matches that match your schedule and sport preference.</p>
-      </div>
-      <div class="feature-card">
-        <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="Notifications">
-        <h3>Notifications</h3>
-        <p>Receive alerts when new games are available or when your match is ready to start.</p>
-      </div>
-    </div>
-  </section>
+                <!-- Cover Image Placeholder -->
+                <div class="hidden md:block">
+                    <img
+                        src="https://placehold.co/600x400/3b82f6/ffffff?text=Sports+Match+App+Cover"
+                        alt="Sports Match App Screenshot Mockup"
+                        class="w-full h-auto rounded-3xl shadow-2xl transform transition duration-500 hover:rotate-1 hover:scale-[1.01]"
+                        onerror="this.onerror=null; this.src='https://placehold.co/600x400/3b82f6/ffffff?text=App+Preview';"
+                    />
+                </div>
+            </div>
+        </section>
 
-  <!-- About Section -->
-  <section id="about">
-    <h2>About Us</h2>
-    <div class="about">
-      <div class="about-card">
-        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e" alt="Team">
-        <h3>Our Story</h3>
-        <p>We love sports and wanted an app to organize football, basketball, and padel games easily with friends or new players nearby. This is our Holberton School Portfolio Project.</p>
-      </div>
-      <div class="about-card">
-        <h3>Connect with Us</h3>
-        <p>
-          <a href="https://github.com/your-github" target="_blank">GitHub</a><br>
-          <a href="https://linkedin.com/in/your-linkedin" target="_blank">LinkedIn</a><br>
-          <a href="https://twitter.com/your-twitter" target="_blank">Twitter</a>
-        </p>
-        <p><a href="https://github.com/your-repo" target="_blank">Project Repository</a></p>
-      </div>
-    </div>
-  </section>
+        <!-- 1. Feature Section -->
+        <section id="features" class="py-20 sm:py-32 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl font-extrabold mb-4">Core Features Designed for Players</h2>
+                <p class="text-xl text-gray-500 mb-16 max-w-3xl mx-auto">
+                    We built the platform to solve the real problems of amateur team sports: coordination and availability.
+                </p>
 
-  <footer>
-    &copy; 2025 Sports Event App. All rights reserved.
-  </footer>
+                <div class="grid md:grid-cols-3 gap-10">
+                    <!-- Feature 1: Quick Event Creation -->
+                    <div class="bg-gray-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300 border border-gray-100">
+                        <div class="text-primary mb-4">
+                            <i data-lucide="calendar-plus" class="w-10 h-10 mx-auto"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Post Your Match in Seconds</h3>
+                        <p class="text-gray-600">Organizers can quickly post a new game—select the sport (Football, Padel, Basketball), pick a location, set the date/time, and specify exactly how many players they are missing. The event goes live instantly.</p>
+                        <img class="mt-6 rounded-lg w-full" src="https://placehold.co/400x250/dbeafe/1e40af?text=CREATE+EVENT+SCREEN" alt="Create Event Screen Placeholder">
+                    </div>
 
+                    <!-- Feature 2: Smart Discovery and Filtering -->
+                    <div class="bg-gray-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300 border border-gray-100">
+                        <div class="text-primary mb-4">
+                            <i data-lucide="search" class="w-10 h-10 mx-auto"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Find Your Game, Your Way</h3>
+                        <p class="text-gray-600">Tired of endless group chats? Filter the event list by your preferred sport, location, or time slot. Our smart filters connect you to the perfect match nearby that fits your schedule.</p>
+                        <img class="mt-6 rounded-lg w-full" src="https://placehold.co/400x250/dbeafe/1e40af?text=EVENT+LIST+%26+FILTERS" alt="Event List Screen Placeholder">
+                    </div>
+
+                    <!-- Feature 3: Real-Time Participation & Notifications -->
+                    <div class="bg-gray-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition duration-300 border border-gray-100">
+                        <div class="text-primary mb-4">
+                            <i data-lucide="bell-ring" class="w-10 h-10 mx-auto"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Instant Join & Updates</h3>
+                        <p class="text-gray-600">Joining an open spot is one tap away. Get instant notifications via Firebase Cloud Messaging when someone joins your event or when a match becomes full, ensuring you're always ready to play.</p>
+                        <img class="mt-6 rounded-lg w-full" src="https://placehold.co/400x250/dbeafe/1e40af?text=JOIN+%26+NOTIFICATION" alt="Notification Mockup Placeholder">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. About Section (Our Story & Team) -->
+        <section id="about" class="py-20 sm:py-32 bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Personal Story -->
+                    <h2 class="text-4xl font-extrabold mb-6 text-center">Our Story: Why We Built This App</h2>
+                    <div class="bg-white p-8 rounded-2xl shadow-xl space-y-4 mb-16 border-l-4 border-primary">
+                        <p class="text-lg text-gray-700">
+                            As passionate sports players—especially football and padel—we constantly faced the same frustrating problem: organizing a casual game felt like a part-time job. We were lucky if we managed to coordinate enough friends to play once a month. We wanted to play more often, but the time spent chasing RSVPs was killing the spontaneity.
+                        </p>
+                        <p class="text-lg text-gray-700">
+                            The **Sports Match App** was born from that exact frustration. We realized the solution wasn't just *finding* a place to play, but making it effortless to *find the missing players*. Our project focuses solely on solving that coordination gap, ensuring that every player who wants to play, can play.
+                        </p>
+                        <p class="text-sm text-gray-500 pt-4">
+                            This project was developed by Rassil Jdidi and Yassine Khouzami as a capstone Portfolio Project for <a href="https://www.holbertonschool.com/" target="_blank" class="text-primary hover:underline font-medium">Holberton School</a>.
+                        </p>
+                    </div>
+
+                    <!-- Project Repository Link -->
+                    <div class="text-center mb-16">
+                         <h3 class="text-2xl font-bold mb-4">View the Codebase</h3>
+                         <a href="https://github.com/YourTeam/SportsMatchApp" target="_blank" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-100 transition duration-300 shadow-md">
+                            <i data-lucide="github" class="w-5 h-5 mr-2"></i>
+                            Project GitHub Repository
+                        </a>
+                    </div>
+
+
+                    <!-- Team Member Links -->
+                    <h3 id="team" class="text-2xl font-bold mb-8 text-center">The Team</h3>
+                    <div class="grid sm:grid-cols-2 gap-8">
+                        <!-- Team Member 1 -->
+                        <div class="bg-white p-6 rounded-xl shadow-md text-center border border-gray-200">
+                            <img class="w-24 h-24 mx-auto rounded-full mb-4 object-cover" src="https://placehold.co/96x96/60a5fa/ffffff?text=YK" alt="Yassine Khouzami">
+                            <h4 class="text-xl font-semibold mb-2">Yassine Khouzami</h4>
+                            <div class="flex justify-center space-x-4">
+                                <a href="[Link to Yassine's LinkedIn]" target="_blank" class="text-blue-700 hover:text-primary"><i data-lucide="linkedin" class="w-6 h-6"></i></a>
+                                <a href="[Link to Yassine's GitHub]" target="_blank" class="text-gray-800 hover:text-primary"><i data-lucide="github" class="w-6 h-6"></i></a>
+                                <a href="[Link to Yassine's Twitter]" target="_blank" class="text-blue-400 hover:text-primary"><i data-lucide="twitter" class="w-6 h-6"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Team Member 2 -->
+                        <div class="bg-white p-6 rounded-xl shadow-md text-center border border-gray-200">
+                            <img class="w-24 h-24 mx-auto rounded-full mb-4 object-cover" src="https://placehold.co/96x96/60a5fa/ffffff?text=RJ" alt="Rassil Jdidi">
+                            <h4 class="text-xl font-semibold mb-2">Rassil Jdidi</h4>
+                            <div class="flex justify-center space-x-4">
+                                <a href="[Link to Rassil's LinkedIn]" target="_blank" class="text-blue-700 hover:text-primary"><i data-lucide="linkedin" class="w-6 h-6"></i></a>
+                                <a href="[Link to Rassil's GitHub]" target="_blank" class="text-gray-800 hover:text-primary"><i data-lucide="github" class="w-6 h-6"></i></a>
+                                <a href="[Link to Rassil's Twitter]" target="_blank" class="text-blue-400 hover:text-primary"><i data-lucide="twitter" class="w-6 h-6"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Sports Match App | Developed by Rassil Jdidi & Yassine Khouzami</p>
+            <div class="mt-2 text-sm text-gray-400">
+                Built as a Holberton School Portfolio Project (Flutter + Firebase).
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script to render Lucide icons and handle smooth scrolling -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>
