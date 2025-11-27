@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sports Event App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #222; color: white; }
+    header a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
+    .cover { background: url('https://images.unsplash.com/photo-1505842465776-3f5d4f26f65d') center/cover no-repeat; height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+    .cover h1 { font-size: 4rem; margin: 0; }
+    .cover p { font-size: 1.5rem; margin: 10px 0; }
+    .cover button { padding: 10px 20px; font-size: 1.2rem; cursor: pointer; margin-top: 15px; background-color: #ff5722; border: none; color: white; border-radius: 5px; }
+    section { padding: 60px 20px; max-width: 1000px; margin: auto; }
+    h2 { text-align: center; margin-bottom: 40px; }
+    .features, .about { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; }
+    .feature-card, .about-card { flex: 1 1 30%; background: #f3f3f3; padding: 20px; border-radius: 10px; text-align: center; }
+    .feature-card img, .about-card img { max-width: 100%; border-radius: 10px; }
+    footer { text-align: center; padding: 20px; background: #222; color: white; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div><strong>Sports Event App</strong></div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <!-- Intro Section -->
+  <div class="cover">
+    <h1>Sports Event App</h1>
+    <p>Organize & Join Team Sports Easily</p>
+    <button onclick="window.location.href='https://your-deployed-app-link.com'">Open App</button>
+  </div>
+
+  <!-- Features Section -->
+  <section id="features">
+    <h2>Key Features</h2>
+    <div class="features">
+      <div class="feature-card">
+        <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="Create Event">
+        <h3>Create Events</h3>
+        <p>Easily create football, basketball, or padel events with time, location, and players needed.</p>
+      </div>
+      <div class="feature-card">
+        <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="Join Events">
+        <h3>Join Events</h3>
+        <p>Discover and join nearby sports matches that match your schedule and sport preference.</p>
+      </div>
+      <div class="feature-card">
+        <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d" alt="Notifications">
+        <h3>Notifications</h3>
+        <p>Receive alerts when new games are available or when your match is ready to start.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about">
+    <h2>About Us</h2>
+    <div class="about">
+      <div class="about-card">
+        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e" alt="Team">
+        <h3>Our Story</h3>
+        <p>We love sports and wanted an app to organize football, basketball, and padel games easily with friends or new players nearby. This is our Holberton School Portfolio Project.</p>
+      </div>
+      <div class="about-card">
+        <h3>Connect with Us</h3>
+        <p>
+          <a href="https://github.com/your-github" target="_blank">GitHub</a><br>
+          <a href="https://linkedin.com/in/your-linkedin" target="_blank">LinkedIn</a><br>
+          <a href="https://twitter.com/your-twitter" target="_blank">Twitter</a>
+        </p>
+        <p><a href="https://github.com/your-repo" target="_blank">Project Repository</a></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Sports Event App. All rights reserved.
+  </footer>
+
+</body>
+</html>
